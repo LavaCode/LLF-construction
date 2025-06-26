@@ -247,18 +247,26 @@ function Room() {
   }, [roomName]);
 
   const addTask = async () => {
-    if (newTask.trim()) {
-      const maxPosition = tasks.length > 0 ? Math.max(...tasks.map(t => t.position || 0)) : 0;
-      await supabase.from("tasks").insert({
-        title: newTask,
-        done: false,
-        room_id: room.id, 
-        position: maxPosition + 1
-      });
-      setNewTask("");
-      loadRoom();
+    if (!room?.id || !newTask.trim()) return;
+
+    const maxPosition = tasks.length > 0 ? Math.max(...tasks.map(t => t.position || 0)) : 0;
+
+    const { error } = await supabase.from("tasks").insert({
+      title: newTask,
+      done: false,
+      room_id: room.id,
+      position: maxPosition + 1
+    });
+
+    if (error) {
+      alert("Failed to add task: " + error.message);
+      return;
     }
+
+    setNewTask("");
+    loadRoom();
   };
+
 
   useEffect(() => {
     if (room?.name) {
