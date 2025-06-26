@@ -249,19 +249,24 @@ function Room() {
   const addTask = async () => {
     if (newTask.trim()) {
       const maxPosition = tasks.length > 0 ? Math.max(...tasks.map(t => t.position || 0)) : 0;
-      await supabase.from("tasks").insert({ title: newTask, done: false, room_id: roomName, position: maxPosition + 1 });
+      await supabase.from("tasks").insert({
+        title: newTask,
+        done: false,
+        room_id: room.id, 
+        position: maxPosition + 1
+      });
       setNewTask("");
       loadRoom();
     }
   };
 
   useEffect(() => {
-  if (room?.name) {
-    document.title = `${room.name} | LLF Progress`;
-  } else {
-    document.title = "LLF Progress";
-  }
-}, [room]);
+    if (room?.name) {
+      document.title = `${room.name} | LLF Progress`;
+    } else {
+      document.title = "LLF Progress";
+    }
+  }, [room]);
 
 
   const toggleTask = async task => {
