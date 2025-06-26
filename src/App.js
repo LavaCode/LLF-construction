@@ -30,11 +30,13 @@ function Home() {
 
   const addRoom = async () => {
     if (newRoom.trim()) {
-      await supabase.from("rooms").insert({ name: newRoom });
+      const slug = slugify(newRoom, { lower: true });
+      await supabase.from("rooms").insert({ name: newRoom, slug });
       setNewRoom("");
       loadRooms();
     }
   };
+
 
   const startEditing = (room) => {
     setEditingRoomId(room.id);
@@ -226,11 +228,15 @@ function Room() {
   const [showPin, setShowPin] = useState(false);
 
   const loadRoom = async () => {
-    const { data: roomData } = await supabase.from("rooms").select().eq("id", roomName).single();
+    const { data: roomData } = await supabase
+      .from("rooms")
+      .select("*")
+      .eq("slug", roomName)
+      .single();
     const { data: taskData } = await supabase
       .from("tasks")
       .select()
-      .eq("room_id", roomName)
+      .eq("room_id", roomData.id)
       .order("position", { ascending: true });
     setRoom(roomData);
     setTasks(taskData || []);
@@ -248,6 +254,15 @@ function Room() {
       loadRoom();
     }
   };
+
+  useEffect(() => {
+  if (room?.name) {
+    document.title = `${room.name} | LLF Progress`;
+  } else {
+    document.title = "LLF Progress";
+  }
+}, [room]);
+
 
   const toggleTask = async task => {
     await supabase.from("tasks").upsert({
