@@ -290,12 +290,12 @@ function Room() {
 
   const handleDragEnd = async (result) => {
     if (!result.destination) return;
-    
+
     const reordered = Array.from(tasks);
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
     setTasks(reordered);
-    
+
     await Promise.all(
       reordered.map((task, index) =>
         supabase.from("tasks").upsert({ id: task.id, position: index })
@@ -329,27 +329,6 @@ function Room() {
           </div>
         </div>
       </div>
-
-      {!editMode && (
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">Admin Access</h3>
-          </div>
-          <div className="card-content">
-            <input
-              value={pinInput}
-              onChange={e => setPinInput(e.target.value)}
-              onKeyPress={e => e.key === 'Enter' && unlockEditMode()}
-              placeholder="Enter PIN"
-              type="password"
-              className="input"
-            />
-            <button onClick={unlockEditMode} className="btn btn-primary">
-              Unlock
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="card">
         <div className="card-header">
@@ -429,8 +408,8 @@ function Room() {
 
       <div className="card">
         <div className="card-content">
-          <button 
-            onClick={() => setShowPin(!showPin)} 
+          <button
+            onClick={() => setShowPin(!showPin)}
             className="btn btn-secondary"
           >
             ← Back to Home
@@ -452,6 +431,26 @@ function Room() {
           )}
         </div>
       </div>
+      {!editMode && (
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">Admin Access</h3>
+          </div>
+          <div className="card-content">
+            <input
+              value={pinInput}
+              onChange={e => setPinInput(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && unlockEditMode()}
+              placeholder="Enter PIN"
+              type="password"
+              className="input"
+            />
+            <button onClick={unlockEditMode} className="btn btn-primary">
+              Unlock
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
