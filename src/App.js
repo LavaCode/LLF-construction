@@ -2,6 +2,7 @@ import { HashRouter as Router, Route, Routes, Navigate, useNavigate, useParams }
 import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import slugify from 'slugify';
 import "./App.css";
 
 const supabase = createClient(
@@ -168,7 +169,7 @@ function Home() {
               ) : (
                 <div className="room-item-content">
                   <div
-                    onClick={() => navigate(`/room/${room.id}`)}
+                    onClick={() => navigate(`/room/${slugify(room.name, { lower: true })}`)}
                     className="room-item-main"
                   >
                     <div className="room-item-info">
@@ -216,7 +217,7 @@ function Home() {
 }
 
 function Room() {
-  const { id } = useParams();
+  const { roomName } = useParams();
   const navigate = useNavigate();
   const [room, setRoom] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -225,11 +226,11 @@ function Room() {
   const [showPin, setShowPin] = useState(false);
 
   const loadRoom = async () => {
-    const { data: roomData } = await supabase.from("rooms").select().eq("id", id).single();
+    const { data: roomData } = await supabase.from("rooms").select().eq("id", roomName).single();
     const { data: taskData } = await supabase
       .from("tasks")
       .select()
-      .eq("room_id", id)
+      .eq("room_id", roomName)
       .order("position", { ascending: true });
     setRoom(roomData);
     setTasks(taskData || []);
@@ -237,12 +238,12 @@ function Room() {
 
   useEffect(() => {
     loadRoom();
-  }, [id]);
+  }, [roomName]);
 
   const addTask = async () => {
     if (newTask.trim()) {
       const maxPosition = tasks.length > 0 ? Math.max(...tasks.map(t => t.position || 0)) : 0;
-      await supabase.from("tasks").insert({ title: newTask, done: false, room_id: id, position: maxPosition + 1 });
+      await supabase.from("tasks").insert({ title: newTask, done: false, room_id: roomName, position: maxPosition + 1 });
       setNewTask("");
       loadRoom();
     }
@@ -437,7 +438,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/room/:id" element={<Room />} />
+        <Route path="/room/:roomName" element={<Room />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
