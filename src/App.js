@@ -226,63 +226,69 @@ function Room() {
   const [newTask, setNewTask] = useState("");
   const [pin, setPin] = useState("");
   const [showPin, setShowPin] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [pinInput, setPinInput] = useState("");
 
-  const loadRoom = async () => {
-    const { data: roomData } = await supabase
-      .from("rooms")
-      .select("*")
-      .eq("slug", roomName)
-      .single();
+ const loadRoom = async () => {
+  const { data: roomData } = await supabase
+    .from("rooms")
+    .select("*")
+    .eq("slug", roomName)
+    .single();
+
+  if (roomData) {
+    document.title = roomData.name; // 👈 Set document title
+    setRoom(roomData);
+
     const { data: taskData } = await supabase
       .from("tasks")
       .select()
       .eq("room_id", roomData.id)
       .order("position", { ascending: true });
-    setRoom(roomData);
+
     setTasks(taskData || []);
-  };
+  }
+};
+
 
   useEffect(() => {
     loadRoom();
   }, [roomName]);
 
   const addTask = async () => {
-    if (!room?.id || !newTask.trim()) return;
-
-    const maxPosition = tasks.length > 0 ? Math.max(...tasks.map(t => t.position || 0)) : 0;
-
-    const { error } = await supabase.from("tasks").insert({
-      title: newTask,
-      done: false,
-      room_id: room.id,
-      position: maxPosition + 1
-    });
-
-    if (error) {
-      alert("Failed to add task: " + error.message);
-      return;
+    if (newTask.trim()) {
+      const maxPosition = tasks.length > 0 ? Math.max(...tasks.map(t => t.position || 0)) : 0;
+      await supabase.from("tasks").insert({
+        title: newTask,
+        done: false,
+        room_id: room.id,
+        position: maxPosition + 1,
+      });
+      setNewTask("");
+      loadRoom();
     }
+  };
 
-    setNewTask("");
+  const toggleTask = async (task) => {
+    await supabase.from("tasks").upsert({ id: task.id, done: !task.done });
     loadRoom();
   };
 
-
-  useEffect(() => {
-    if (room?.name) {
-      document.title = `${room.name} | LLF Progress`;
-    } else {
-      document.title = "LLF Progress";
-    }
-  }, [room]);
-
-
-  const toggleTask = async task => {
-    await supabase.from("tasks").upsert({
-      id: task.id,
-      done: !task.done,
-    });
+  const deleteTask = async (taskId) => {
+    const confirmed = window.confirm("Delete this task?");
+    if (!confirmed) return;
+    const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+    if (error) alert("Error deleting task: " + error.message);
     loadRoom();
+  };
+
+  const unlockEditMode = () => {
+    if (pinInput === process.env.REACT_APP_PIN) {
+      setEditMode(true);
+      setPinInput("");
+    } else {
+      alert("Incorrect PIN");
+    }
   };
 
   const goHome = () => {
@@ -292,13 +298,10 @@ function Room() {
 
   const handleDragEnd = async (result) => {
     if (!result.destination) return;
-
     const reordered = Array.from(tasks);
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
-
     setTasks(reordered);
-
     await Promise.all(
       reordered.map((task, index) =>
         supabase.from("tasks").upsert({ id: task.id, position: index })
@@ -306,143 +309,113 @@ function Room() {
     );
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      addTask();
-    }
-  };
+  if (!room) return <div className="loading"><div className="spinner"></div></div>;
 
-  if (!room) {
-    return (
-      <div className="loading">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-
-  const completedTasks = tasks.filter(task => task.done).length;
-  const totalTasks = tasks.length;
-  const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+  const completed = tasks.filter(t => t.done).length;
+  const total = tasks.length;
+  const progress = total > 0 ? (completed / total) * 100 : 0;
 
   return (
     <div className="app-container">
-      {/* Header */}
       <div className="card">
         <div className="card-content">
           <div className="room-header">
-            <div className="room-header-info">
-              <h2>{room.name}</h2>
-              <p>{completedTasks} of {totalTasks} tasks completed</p>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="progress-container">
+            <h2>{room.name}</h2>
+            <p>{completed} of {total} tasks completed</p>
             <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
+              <div className="progress-fill" style={{ width: `${progress}%` }}></div>
             </div>
-            <p className="progress-text">{Math.round(progressPercentage)}% complete</p>
+            <p className="progress-text">{Math.round(progress)}% complete</p>
           </div>
         </div>
       </div>
 
-      {/* Add Task Form */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="card-title">Add New Task</h3>
-        </div>
-        <div className="card-content">
-          <div className="form-group">
+      {!editMode && (
+        <div className="card">
+          <div className="card-content">
+            <h3>Admin Access</h3>
             <input
-              value={newTask}
-              onChange={e => setNewTask(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Enter task description"
+              value={pinInput}
+              onChange={e => setPinInput(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && unlockEditMode()}
+              placeholder="Enter PIN"
+              type="password"
               className="input"
             />
+            <button onClick={unlockEditMode} className="btn btn-primary">Unlock Edit Mode</button>
           </div>
-          <button onClick={addTask} className="btn btn-success">
-            Add Task
-          </button>
+        </div>
+      )}
+
+      <div className="card">
+        <div className="card-header">
+          <h3>Add New Task</h3>
+        </div>
+        <div className="card-content">
+          <input
+            value={newTask}
+            onChange={e => setNewTask(e.target.value)}
+            onKeyPress={e => e.key === 'Enter' && addTask()}
+            placeholder="Enter task description"
+            className="input"
+          />
+          <button onClick={addTask} className="btn btn-success">Add Task</button>
         </div>
       </div>
 
-      {/* Tasks List */}
-      <div className="card">
-        {tasks.length === 0 ? (
-          <div className="empty-state">
-            <h3 className="empty-state-title">No tasks yet</h3>
-            <p className="empty-state-text">Add your first task above to get started</p>
-          </div>
-        ) : (
-          <div className="card-content">
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="tasks">
-                {(provided) => (
-                  <div
-                    className="task-list"
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    {tasks.map((task, index) => {
-                      if (!task.id) return null; // skip tasks without valid ID
-                      return (
-                        <Draggable key={task.id} draggableId={String(task.id)} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              className={`task-item ${task.done ? 'completed' : ''} ${snapshot.isDragging ? 'dragging' : ''}`}
-                            >
-                              <div className="task-content">
-                                <div
-                                  onClick={() => toggleTask(task)}
-                                  className={`task-checkbox ${task.done ? 'completed' : ''}`}
-                                >
-                                  {task.done && '✓'}
-                                </div>
-                                <div
-                                  onClick={() => toggleTask(task)}
-                                  className={`task-text ${task.done ? 'completed' : ''}`}
-                                >
-                                  {task.title}
-                                </div>
-                                <div
-                                  {...provided.dragHandleProps}
-                                  className="task-drag-handle"
-                                >
-                                  ⋮⋮
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      );
-                    })}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </div>
-        )}
-      </div>
-
-      {/* Return Home */}
       <div className="card">
         <div className="card-content">
-          <button
-            onClick={() => setShowPin(!showPin)}
-            className="btn btn-secondary"
-          >
-            ← Return Home
-          </button>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="tasks">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef} className="task-list">
+                  {tasks.map((task, index) => (
+                    <Draggable key={task.id} draggableId={String(task.id)} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`task-item ${task.done ? 'completed' : ''} ${snapshot.isDragging ? 'dragging' : ''}`}
+                        >
+                          <div className="task-content">
+                            <div
+                              onClick={() => toggleTask(task)}
+                              className={`task-checkbox ${task.done ? 'completed' : ''}`}
+                            >
+                              {task.done && '✓'}
+                            </div>
+                            <div
+                              onClick={() => toggleTask(task)}
+                              className={`task-text ${task.done ? 'completed' : ''}`}
+                            >
+                              {task.title}
+                            </div>
+                            <div {...provided.dragHandleProps} className="task-drag-handle">⋮⋮</div>
+                            {editMode && (
+                              <button
+                                onClick={() => deleteTask(task.id)}
+                                className="task-delete-btn"
+                                title="Delete task"
+                              >🗑️</button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
+      </div>
 
+      <div className="card">
+        <div className="card-content">
+          <button onClick={() => setShowPin(!showPin)} className="btn btn-secondary">← Return Home</button>
           {showPin && (
-            <div className="space-y-3" style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '1rem' }}>
               <input
                 value={pin}
                 onChange={e => setPin(e.target.value)}
@@ -450,7 +423,6 @@ function Room() {
                 placeholder="Enter PIN to return home"
                 type="password"
                 className="input"
-                autoFocus
               />
               <button onClick={goHome} className="btn btn-primary">Go</button>
             </div>
@@ -460,6 +432,7 @@ function Room() {
     </div>
   );
 }
+
 
 export default function App() {
   return (

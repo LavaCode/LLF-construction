@@ -15,37 +15,33 @@ body {
 .app-container {
   max-width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1rem .5rem;
   min-height: 100vh;
 }
 
 @media (min-width: 640px) {
   .app-container {
-    max-width: 28rem;
-    padding: 1.5rem 1rem;
+    max-width: 32rem;
+    padding: .2rem 1rem;
   }
 }
 
 .app-header {
   text-align: center;
-  margin-bottom: 2rem;
-  padding: 1rem 0;
-}
-
-.app-icon {
-  display: none;
+  margin-bottom: 3rem;
+  padding: 1rem 1rem;
 }
 
 .app-title {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 .2rem 0;
   letter-spacing: -0.025em;
 }
 
 .app-subtitle {
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: #64748b;
   margin: 0;
   font-weight: 500;
@@ -55,26 +51,26 @@ body {
   background: white;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   overflow: hidden;
   border: 1px solid #e2e8f0;
 }
 
 .card-header {
-  padding: 1.25rem;
+  padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
 }
 
 .card-title {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #0f172a;
   margin: 0;
 }
 
 .card-content {
-  padding: 1.25rem;
+  padding: 1rem;
 }
 
 .form-group {
@@ -87,16 +83,18 @@ body {
 
 .input {
   width: 100%;
-  padding: 0.875rem 1rem;
+  padding: .5rem .5rem;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   transition: all 0.15s ease;
   outline: none;
   background: white;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  min-height: 30px;
+  margin-bottom: .2rem;
 }
 
 .input:focus {
@@ -105,8 +103,9 @@ body {
 }
 
 .input-large {
-  font-size: 1.125rem;
-  padding: 1rem;
+  font-size: 1.2rem;
+  padding: .5rem;
+  min-height: 50px;
 }
 
 .input::placeholder {
@@ -115,10 +114,10 @@ body {
 
 .btn {
   width: 100%;
-  padding: 0.875rem 1rem;
+  padding: 1.25rem 1.5rem;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -126,7 +125,8 @@ body {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  min-height: 48px; 
+  min-height: 56px;
+  margin-top: 1rem;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -139,6 +139,7 @@ body {
 .btn-primary {
   background: #3b82f6;
   color: white;
+  margin-top: 1.5rem;
 }
 
 .btn-primary:hover {
@@ -148,6 +149,7 @@ body {
 .btn-success {
   background: #10b981;
   color: white;
+  margin-top: 1.5rem;
 }
 
 .btn-success:hover {
@@ -157,6 +159,7 @@ body {
 .btn-warning {
   background: #f59e0b;
   color: white;
+  margin-top: 1.5rem;
 }
 
 .btn-warning:hover {
@@ -166,6 +169,7 @@ body {
 .btn-danger {
   background: #ef4444;
   color: white;
+  margin-top: 1.5rem;
 }
 
 .btn-danger:hover {
@@ -175,6 +179,7 @@ body {
 .btn-secondary {
   background: #64748b;
   color: white;
+  margin-top: 1.5rem;
 }
 
 .btn-secondary:hover {
@@ -185,6 +190,7 @@ body {
   background: #f1f5f9;
   color: #475569;
   border: 1px solid #e2e8f0;
+  margin-top: 1.5rem;
 }
 
 .btn-light:hover {
@@ -192,16 +198,18 @@ body {
 }
 
 .btn-small {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.95rem;
   width: auto;
-  min-height: 36px;
+  min-height: 48px;
+  margin-top: 1rem;
+  margin-right: 0.75rem;
 }
 
 .room-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.5rem;
 }
 
 .room-item {
@@ -219,10 +227,10 @@ body {
 
 .room-item-main {
   flex: 1;
-  padding: 1.25rem;
+  padding: 2rem;
   cursor: pointer;
   transition: background-color 0.15s ease;
-  min-height: 64px;
+  min-height: 80px;
   display: flex;
   align-items: center;
 }
@@ -241,19 +249,16 @@ body {
   width: 100%;
 }
 
-.room-icon {
-  display: none; 
-}
-
 .room-name {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #0f172a;
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
 }
 
 .room-subtitle {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: #64748b;
   margin: 0;
 }
@@ -264,7 +269,7 @@ body {
 }
 
 .room-action-btn {
-  padding: 1rem;
+  padding: 1.5rem 1.25rem;
   border: none;
   background: none;
   cursor: pointer;
@@ -274,8 +279,8 @@ body {
   justify-content: center;
   font-size: 0.875rem;
   color: #64748b;
-  min-width: 48px;
-  min-height: 48px;
+  min-width: 64px;
+  min-height: 64px;
 }
 
 .room-action-btn:hover {
@@ -301,7 +306,7 @@ body {
 .task-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .task-item {
@@ -331,22 +336,22 @@ body {
 .task-content {
   display: flex;
   align-items: center;
-  padding: 1rem;
-  min-height: 56px;
+  padding: 1.5rem;
+  min-height: 72px;
 }
 
 .task-checkbox {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border: 2px solid #cbd5e1;
   border-radius: 4px;
-  margin-right: 0.75rem;
+  margin-right: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s ease;
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .task-checkbox.completed {
@@ -357,10 +362,11 @@ body {
 
 .task-text {
   flex: 1;
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #0f172a;
   transition: all 0.15s ease;
   line-height: 1.5;
+  margin-right: 1.5rem;
 }
 
 .task-text.completed {
@@ -369,19 +375,31 @@ body {
 }
 
 .task-drag-handle {
-  padding: 0.5rem;
+  padding: 1rem;
   color: #94a3b8;
   cursor: grab;
   font-size: 1rem;
   touch-action: none;
+  margin-right: 0.5rem;
 }
 
 .task-drag-handle:active {
   cursor: grabbing;
 }
 
-.progress-container {
-  margin: 1rem 0;
+.task-delete-btn {
+  padding: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #ef4444;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+.task-delete-btn:hover {
+  background-color: #fee2e2;
 }
 
 .progress-bar {
@@ -390,7 +408,7 @@ body {
   background-color: #e2e8f0;
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 0.5rem;
+  margin: 1.5rem 0 1rem 0;
 }
 
 .progress-fill {
@@ -401,26 +419,23 @@ body {
 }
 
 .progress-text {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: #64748b;
-  text-align: right;
+  text-align: center;
   font-weight: 500;
+  margin-top: 0.75rem;
 }
 
 .empty-state {
   text-align: center;
-  padding: 2rem 1rem;
-}
-
-.empty-state-icon {
-  display: none; 
+  padding: 3rem 1.5rem;
 }
 
 .empty-state-title {
   font-size: 1.25rem;
   font-weight: 600;
   color: #0f172a;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 1rem 0;
 }
 
 .empty-state-text {
@@ -430,31 +445,22 @@ body {
 }
 
 .room-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
+  text-align: center;
+  margin-bottom: 0.1rem;
 }
 
-.room-header-icon {
-  display: none; 
-}
-
-.room-header-info {
-  width: 100%;
-}
-
-.room-header-info h2 {
+.room-header h2 {
   font-size: 1.5rem;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 .2rem 0;
   letter-spacing: -0.025em;
 }
 
-.room-header-info p {
-  font-size: 1rem;
+.room-header p {
+  font-size: 1.05rem;
   color: #64748b;
-  margin: 0;
+  margin: 0 0 .2rem 0;
   font-weight: 500;
 }
 
@@ -475,27 +481,15 @@ body {
 }
 
 .gap-2 {
-  gap: 0.5rem;
+  gap: 0.2rem;
 }
 
 .gap-3 {
-  gap: 0.75rem;
-}
-
-.space-y-3 > * + * {
-  margin-top: 0.75rem;
-}
-
-.space-y-4 > * + * {
-  margin-top: 1rem;
+  gap: .2rem;
 }
 
 .text-center {
   text-align: center;
-}
-
-.hidden {
-  display: none;
 }
 
 .loading {
@@ -519,40 +513,73 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+/* Mobile Optimizations */
 @media (max-width: 480px) {
   .app-container {
-    padding: 0.75rem;
+    padding: .5rem 1rem;
   }
   
   .card-content {
-    padding: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .card-header {
+    padding: 1.5rem;
   }
   
   .room-item-main {
-    padding: 1rem;
+    padding: 1.5rem;
+    min-height: 72px;
   }
   
   .task-content {
-    padding: 0.875rem;
+    padding: 1.25rem;
+    min-height: 64px;
   }
   
   .app-title {
+    font-size: 1.75rem;
+  }
+  
+  .room-header h2 {
     font-size: 1.5rem;
   }
   
-  .room-header-info h2 {
-    font-size: 1.25rem;
-  }
-  
   .btn {
-    font-size: 0.95rem;
+    font-size: 1rem;
+    padding: 1rem 1.25rem;
+    min-height: 52px;
   }
   
   .input {
-    font-size: 1rem; 
+    font-size: 1rem;
+    padding: 1rem 1.25rem;
+    min-height: 52px;
+  }
+  
+  .room-action-btn {
+    min-width: 56px;
+    min-height: 56px;
+    padding: 1rem;
+  }
+  
+  .task-checkbox {
+    width: 22px;
+    height: 22px;
+    margin-right: 1.25rem;
+  }
+  
+  .task-text {
+    font-size: 1rem;
+    margin-right: 1rem;
+  }
+  
+  .task-drag-handle {
+    padding: 0.75rem;
   }
 }
 
+/* Focus and Touch Improvements */
 .btn:focus,
 .input:focus,
 .room-item-main:focus,
@@ -567,22 +594,6 @@ body {
 .btn,
 .room-action-btn {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-}
-
-.card {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
-.card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-}
-
-.card + .card {
-  margin-top: 1rem;
-}
-
-.room-item + .room-item {
-  margin-top: 0.75rem;
 }
 
 .room-action-btn.edit::after {
