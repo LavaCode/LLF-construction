@@ -37,7 +37,6 @@ function Home() {
     }
   };
 
-
   const startEditing = (room) => {
     setEditingRoomId(room.id);
     setEditingRoomName(room.name);
@@ -58,7 +57,7 @@ function Home() {
   };
 
   const deleteRoom = async (id) => {
-    if (window.confirm("Are you sure you want to delete this room?")) {
+    if (window.confirm("Delete this room?")) {
       await supabase.from("rooms").delete().eq("id", id);
       loadRooms();
     }
@@ -69,7 +68,7 @@ function Home() {
       setEditMode(true);
       setPinInput("");
     } else {
-      alert("Incorrect PIN");
+      alert("Wrong PIN");
     }
   };
 
@@ -81,13 +80,11 @@ function Home() {
 
   return (
     <div className="app-container">
-      {/* Header */}
       <div className="app-header">
         <h1 className="app-title">LLF - GALAXY</h1>
         <p className="app-subtitle">AV Integration Progress</p>
       </div>
 
-      {/* PIN Entry */}
       {!editMode && (
         <div className="card">
           <div className="card-header">
@@ -100,22 +97,21 @@ function Home() {
                 value={pinInput}
                 onChange={e => setPinInput(e.target.value)}
                 onKeyPress={e => handleKeyPress(e, checkPin)}
-                placeholder="Enter PIN to edit rooms"
-                className="input input-large"
+                placeholder="Enter PIN"
+                className="input"
               />
             </div>
             <button onClick={checkPin} className="btn btn-primary">
-              Unlock Edit Mode
+              Unlock
             </button>
           </div>
         </div>
       )}
 
-      {/* Add Room Form */}
       {editMode && (
         <div className="card">
           <div className="card-header">
-            <h2 className="card-title">Add New Room</h2>
+            <h2 className="card-title">Add Room</h2>
           </div>
           <div className="card-content">
             <div className="form-group">
@@ -123,7 +119,7 @@ function Home() {
                 value={newRoom}
                 onChange={e => setNewRoom(e.target.value)}
                 onKeyPress={e => handleKeyPress(e, addRoom)}
-                placeholder="Enter room name"
+                placeholder="Room name"
                 className="input"
               />
             </div>
@@ -134,14 +130,13 @@ function Home() {
         </div>
       )}
 
-      {/* Rooms List */}
       <div className="room-list">
         {rooms.length === 0 ? (
           <div className="card">
             <div className="empty-state">
-              <h3 className="empty-state-title">No rooms yet</h3>
+              <h3 className="empty-state-title">No rooms</h3>
               <p className="empty-state-text">
-                {editMode ? "Add your first room above" : "Unlock edit mode to add rooms"}
+                {editMode ? "Add your first room above" : "Enter PIN to add rooms"}
               </p>
             </div>
           </div>
@@ -174,11 +169,9 @@ function Home() {
                     onClick={() => navigate(`/room/${slugify(room.name, { lower: true })}`)}
                     className="room-item-main"
                   >
-                    <div className="room-item-info">
-                      <div>
-                        <h3 className="room-name">{room.name}</h3>
-                        <p className="room-subtitle">Tap to view tasks</p>
-                      </div>
+                    <div>
+                      <h3 className="room-name">{room.name}</h3>
+                      <p className="room-subtitle">Tap to view tasks</p>
                     </div>
                   </div>
                   {editMode && (
@@ -186,13 +179,11 @@ function Home() {
                       <button
                         onClick={() => startEditing(room)}
                         className="room-action-btn edit"
-                        title="Edit room"
                       >
                       </button>
                       <button
                         onClick={() => deleteRoom(room.id)}
                         className="room-action-btn delete"
-                        title="Delete room"
                       >
                       </button>
                     </div>
@@ -205,7 +196,7 @@ function Home() {
       </div>
 
       {editMode && (
-        <div className="text-center" style={{ marginTop: '2rem' }}>
+        <div className="text-center" style={{ marginTop: '16px' }}>
           <button
             onClick={() => setEditMode(false)}
             className="btn btn-light btn-small"
@@ -229,27 +220,26 @@ function Room() {
   const [editMode, setEditMode] = useState(false);
   const [pinInput, setPinInput] = useState("");
 
- const loadRoom = async () => {
-  const { data: roomData } = await supabase
-    .from("rooms")
-    .select("*")
-    .eq("slug", roomName)
-    .single();
+  const loadRoom = async () => {
+    const { data: roomData } = await supabase
+      .from("rooms")
+      .select("*")
+      .eq("slug", roomName)
+      .single();
 
-  if (roomData) {
-    document.title = roomData.name; // 👈 Set document title
-    setRoom(roomData);
+    if (roomData) {
+      document.title = roomData.name;
+      setRoom(roomData);
 
-    const { data: taskData } = await supabase
-      .from("tasks")
-      .select()
-      .eq("room_id", roomData.id)
-      .order("position", { ascending: true });
+      const { data: taskData } = await supabase
+        .from("tasks")
+        .select()
+        .eq("room_id", roomData.id)
+        .order("position", { ascending: true });
 
-    setTasks(taskData || []);
-  }
-};
-
+      setTasks(taskData || []);
+    }
+  };
 
   useEffect(() => {
     loadRoom();
@@ -275,11 +265,10 @@ function Room() {
   };
 
   const deleteTask = async (taskId) => {
-    const confirmed = window.confirm("Delete this task?");
-    if (!confirmed) return;
-    const { error } = await supabase.from("tasks").delete().eq("id", taskId);
-    if (error) alert("Error deleting task: " + error.message);
-    loadRoom();
+    if (window.confirm("Delete this task?")) {
+      await supabase.from("tasks").delete().eq("id", taskId);
+      loadRoom();
+    }
   };
 
   const unlockEditMode = () => {
@@ -287,21 +276,26 @@ function Room() {
       setEditMode(true);
       setPinInput("");
     } else {
-      alert("Incorrect PIN");
+      alert("Wrong PIN");
     }
   };
 
   const goHome = () => {
-    if (pin === process.env.REACT_APP_PIN) navigate("/");
-    else alert("Incorrect PIN");
+    if (pin === process.env.REACT_APP_PIN) {
+      navigate("/");
+    } else {
+      alert("Wrong PIN");
+    }
   };
 
   const handleDragEnd = async (result) => {
     if (!result.destination) return;
+    
     const reordered = Array.from(tasks);
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
     setTasks(reordered);
+    
     await Promise.all(
       reordered.map((task, index) =>
         supabase.from("tasks").upsert({ id: task.id, position: index })
@@ -309,7 +303,13 @@ function Room() {
     );
   };
 
-  if (!room) return <div className="loading"><div className="spinner"></div></div>;
+  if (!room) {
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
 
   const completed = tasks.filter(t => t.done).length;
   const total = tasks.length;
@@ -321,7 +321,7 @@ function Room() {
         <div className="card-content">
           <div className="room-header">
             <h2>{room.name}</h2>
-            <p>{completed} of {total} tasks completed</p>
+            <p>{completed} of {total} tasks done</p>
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${progress}%` }}></div>
             </div>
@@ -332,8 +332,10 @@ function Room() {
 
       {!editMode && (
         <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">Admin Access</h3>
+          </div>
           <div className="card-content">
-            <h3>Admin Access</h3>
             <input
               value={pinInput}
               onChange={e => setPinInput(e.target.value)}
@@ -342,89 +344,110 @@ function Room() {
               type="password"
               className="input"
             />
-            <button onClick={unlockEditMode} className="btn btn-primary">Unlock Edit Mode</button>
+            <button onClick={unlockEditMode} className="btn btn-primary">
+              Unlock
+            </button>
           </div>
         </div>
       )}
 
       <div className="card">
         <div className="card-header">
-          <h3>Add New Task</h3>
+          <h3 className="card-title">Add Task</h3>
         </div>
         <div className="card-content">
           <input
             value={newTask}
             onChange={e => setNewTask(e.target.value)}
             onKeyPress={e => e.key === 'Enter' && addTask()}
-            placeholder="Enter task description"
+            placeholder="Task description"
             className="input"
           />
-          <button onClick={addTask} className="btn btn-success">Add Task</button>
+          <button onClick={addTask} className="btn btn-success">
+            Add Task
+          </button>
         </div>
       </div>
 
       <div className="card">
         <div className="card-content">
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="tasks">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} className="task-list">
-                  {tasks.map((task, index) => (
-                    <Draggable key={task.id} draggableId={String(task.id)} index={index}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className={`task-item ${task.done ? 'completed' : ''} ${snapshot.isDragging ? 'dragging' : ''}`}
-                        >
-                          <div className="task-content">
-                            <div
-                              onClick={() => toggleTask(task)}
-                              className={`task-checkbox ${task.done ? 'completed' : ''}`}
-                            >
-                              {task.done && '✓'}
+          {tasks.length === 0 ? (
+            <div className="empty-state">
+              <h3 className="empty-state-title">No tasks</h3>
+              <p className="empty-state-text">Add your first task above</p>
+            </div>
+          ) : (
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="tasks">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef} className="task-list">
+                    {tasks.map((task, index) => (
+                      <Draggable key={task.id} draggableId={String(task.id)} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className={`task-item ${task.done ? 'completed' : ''}`}
+                          >
+                            <div className="task-content">
+                              <div
+                                onClick={() => toggleTask(task)}
+                                className={`task-checkbox ${task.done ? 'completed' : ''}`}
+                              >
+                                {task.done && '✓'}
+                              </div>
+                              <div
+                                onClick={() => toggleTask(task)}
+                                className={`task-text ${task.done ? 'completed' : ''}`}
+                              >
+                                {task.title}
+                              </div>
+                              <div {...provided.dragHandleProps} className="task-drag-handle">
+                                ≡
+                              </div>
+                              {editMode && (
+                                <button
+                                  onClick={() => deleteTask(task.id)}
+                                  className="task-delete-btn"
+                                >
+                                  ✕
+                                </button>
+                              )}
                             </div>
-                            <div
-                              onClick={() => toggleTask(task)}
-                              className={`task-text ${task.done ? 'completed' : ''}`}
-                            >
-                              {task.title}
-                            </div>
-                            <div {...provided.dragHandleProps} className="task-drag-handle">⋮⋮</div>
-                            {editMode && (
-                              <button
-                                onClick={() => deleteTask(task.id)}
-                                className="task-delete-btn"
-                                title="Delete task"
-                              >🗑️</button>
-                            )}
                           </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          )}
         </div>
       </div>
 
       <div className="card">
         <div className="card-content">
-          <button onClick={() => setShowPin(!showPin)} className="btn btn-secondary">← Return Home</button>
+          <button 
+            onClick={() => setShowPin(!showPin)} 
+            className="btn btn-secondary"
+          >
+            ← Back to Home
+          </button>
           {showPin && (
-            <div style={{ marginTop: '1rem' }}>
+            <div style={{ marginTop: '12px' }}>
               <input
                 value={pin}
                 onChange={e => setPin(e.target.value)}
                 onKeyPress={e => e.key === 'Enter' && goHome()}
-                placeholder="Enter PIN to return home"
+                placeholder="Enter PIN"
                 type="password"
                 className="input"
               />
-              <button onClick={goHome} className="btn btn-primary">Go</button>
+              <button onClick={goHome} className="btn btn-primary">
+                Go Home
+              </button>
             </div>
           )}
         </div>
@@ -432,7 +455,6 @@ function Room() {
     </div>
   );
 }
-
 
 export default function App() {
   return (
