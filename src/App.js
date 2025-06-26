@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate, useParams } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, Navigate, useNavigate, useParams } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
