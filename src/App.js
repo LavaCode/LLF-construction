@@ -19,10 +19,33 @@ function Home() {
   const [editMode, setEditMode] = useState(false);
   const [pinInput, setPinInput] = useState("");
 
-  const loadRooms = async () => {
-    const { data, error } = await supabase.from("rooms").select();
-    if (!error) setRooms(data);
-  };
+const loadRoom = useCallback(async () => {
+  const { data: roomData, error: roomError } = await supabase
+    .from("rooms")
+    .select("*")
+    .eq("slug", roomName)
+    .single();
+
+  if (roomError || !roomData) {
+    alert("Room not found");
+    navigate("/");
+    return;
+  }
+
+  setRoom(roomData);
+
+  const { data: taskData } = await supabase
+    .from("tasks")
+    .select()
+    .eq("room_id", roomData.id)
+    .order("position", { ascending: true });
+
+  setTasks(taskData || []);
+}, [roomName, navigate]);
+
+useEffect(() => {
+  loadRoom();
+}, [loadRoom]);
 
   useEffect(() => {
     loadRooms();
