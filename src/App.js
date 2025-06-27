@@ -49,7 +49,10 @@ function Home() {
 
   const saveEditing = async () => {
     if (editingRoomName.trim()) {
-      await supabase.from("rooms").upsert({ id: editingRoomId, name: editingRoomName });
+      const newSlug = slugify(editingRoomName, { lower: true }); 
+      await supabase
+        .from("rooms")
+        .upsert({ id: editingRoomId, name: editingRoomName, slug: newSlug }); 
       setEditingRoomId(null);
       setEditingRoomName("");
       loadRooms();
@@ -84,51 +87,6 @@ function Home() {
         <h1 className="app-title">LLF - GALAXY</h1>
         <p className="app-subtitle">AV Integration Progress</p>
       </div>
-
-      {!editMode && (
-        <div className="card">
-          <div className="card-header">
-            <h2 className="card-title">Admin Access</h2>
-          </div>
-          <div className="card-content">
-            <div className="form-group">
-              <input
-                type="password"
-                value={pinInput}
-                onChange={e => setPinInput(e.target.value)}
-                onKeyPress={e => handleKeyPress(e, checkPin)}
-                placeholder="Enter PIN"
-                className="input"
-              />
-            </div>
-            <button onClick={checkPin} className="btn btn-primary">
-              Unlock
-            </button>
-          </div>
-        </div>
-      )}
-
-      {editMode && (
-        <div className="card">
-          <div className="card-header">
-            <h2 className="card-title">Add Room</h2>
-          </div>
-          <div className="card-content">
-            <div className="form-group">
-              <input
-                value={newRoom}
-                onChange={e => setNewRoom(e.target.value)}
-                onKeyPress={e => handleKeyPress(e, addRoom)}
-                placeholder="Room name"
-                className="input"
-              />
-            </div>
-            <button onClick={addRoom} className="btn btn-success">
-              Add Room
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="room-list">
         {rooms.length === 0 ? (
@@ -195,6 +153,51 @@ function Home() {
         )}
       </div>
 
+      {!editMode && (
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Admin Access</h2>
+          </div>
+          <div className="card-content">
+            <div className="form-group">
+              <input
+                type="password"
+                value={pinInput}
+                onChange={e => setPinInput(e.target.value)}
+                onKeyPress={e => handleKeyPress(e, checkPin)}
+                placeholder="Enter PIN"
+                className="input"
+              />
+            </div>
+            <button onClick={checkPin} className="btn btn-primary">
+              Unlock
+            </button>
+          </div>
+        </div>
+      )}
+
+      {editMode && (
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Add Room</h2>
+          </div>
+          <div className="card-content">
+            <div className="form-group">
+              <input
+                value={newRoom}
+                onChange={e => setNewRoom(e.target.value)}
+                onKeyPress={e => handleKeyPress(e, addRoom)}
+                placeholder="Room name"
+                className="input"
+              />
+            </div>
+            <button onClick={addRoom} className="btn btn-success">
+              Add Room
+            </button>
+          </div>
+        </div>
+      )}
+
       {editMode && (
         <div className="text-center" style={{ marginTop: '16px' }}>
           <button
@@ -221,11 +224,12 @@ function Room() {
   const [pinInput, setPinInput] = useState("");
 
   const loadRoom = async () => {
-    const { data: roomData } = await supabase
+    const { data: roomData, error } = await supabase
       .from("rooms")
-      .select("*")
+      .select("*", { head: false })  
       .eq("slug", roomName)
       .single();
+
 
     if (roomData) {
       document.title = roomData.name;
@@ -455,7 +459,53 @@ function Room() {
   );
 }
 
+function Login({ onLogin }) {
+  const [pin, setPin] = useState("");
+
+  const handleLogin = () => {
+    if (pin === process.env.REACT_APP_PASSWORD) {
+      onLogin();
+    } else {
+      alert("Incorrect PIN");
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") handleLogin();
+  };
+
+  return (
+    <div className="login-screen">
+      <div className="card">
+        <div className="card-header">
+          <h2 className="card-title">Login</h2>
+        </div>
+        <div className="card-content">
+          <input
+            type="password"
+            value={pin}
+            onChange={e => setPin(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Enter password"
+            className="input"
+          />
+          <button onClick={handleLogin} className="btn btn-primary" style={{ marginTop: '10px' }}>
+            Login
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  if (!isAuthenticated) {
+    return <Login onLogin={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <Router>
       <Routes>
